@@ -19,17 +19,17 @@ public class StockMapper
         };
     }
 
-    public static Stock ToModel(StockDTO stockDTO)
+    public static Stock ToStockFromCreateDTO(CreateStockDTO stockDto)
     {
         return new Stock
         {
-            Id = stockDTO.Id,
-            Symbol = stockDTO.Symbol,
-            CompanyName = stockDTO.CompanyName,
-            Purchase = stockDTO.Purchase,
-            LastDiv = stockDTO.LastDiv,
-            Industry = stockDTO.Industry,
-            MarketCap = stockDTO.MarketCap
+            Symbol = stockDto.Symbol,
+            CompanyName = stockDto.CompanyName,
+            Purchase = stockDto.Purchase,
+            LastDiv = stockDto.LastDiv,
+            Industry = stockDto.Industry,
+            MarketCap = stockDto.MarketCap
         };
     }
+
 }

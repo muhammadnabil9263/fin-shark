@@ -1,7 +1,10 @@
 ﻿using api.Data;
 using api.DTOs;
+using api.Interfaces;
 using api.Mappers;
+using api.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -12,27 +15,30 @@ namespace api.Controllers
     [ApiController]
     public class StocksController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IStockRepository _stockRepository;
 
-        public StocksController(ApplicationDbContext context)
+        public StocksController(IStockRepository stockRepository)
         {
-            _context = context;
+            _stockRepository = stockRepository;
         }
+
 
         // GET: api/stocks
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var stocks = _context.Stocks.ToList();
+            var stocks = await _stockRepository.GetAllAsync();
             var stockDTOs = stocks.Select(stock => StockMapper.ToDTO(stock)).ToList();
             return Ok(stockDTOs);
         }
 
+
         // GET: api/stocks/5
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var stock = _context.Stocks.FirstOrDefault(s => s.Id == id);
+            var stock = await _stockRepository.GetByIdAsync(id);
+
             if (stock == null)
             {
                 return NotFound(new { message = $"Stock with id {id} not found." });
@@ -42,65 +48,51 @@ namespace api.Controllers
             return Ok(stockDTO);
         }
 
+
         // POST: api/stocks
         [HttpPost]
-        public IActionResult Post([FromBody] StockDTO stockDTO)
+        public async Task<IActionResult> Post([FromBody] CreateStockDTO stockDTO)
         {
             if (stockDTO == null)
             {
                 return BadRequest(new { message = "Invalid stock data." });
             }
 
-            var stock = StockMapper.ToModel(stockDTO);
-            _context.Stocks.Add(stock);
-            _context.SaveChanges();
+            await _stockRepository.CreateAsync(stockDTO);
 
-            return Ok(new { message = "Stock created successfully.",stock = stockDTO });
+            return Ok(new { message = "Stock created successfully.", stock = stockDTO });
         }
-
-        // PUT: api/stocks/5
+        
+        
+        //PUT: api/stocks/5
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] StockDTO stockDTO)
+        public async Task<IActionResult> Put(int id, [FromBody] UpdateStockDTO stockDTO)
         {
-            if (stockDTO == null || stockDTO.Id != id)
+         
+        
+           var result = await _stockRepository.UpdateAsync(id,stockDTO);
+            
+            if (result)
             {
-                return BadRequest();
+                return Ok(new { message = "Stock updated successfully.", stock = stockDTO });
             }
 
-            var stock = _context.Stocks.FirstOrDefault(s => s.Id == id);
-            if (stock == null)
-            {
-                return NotFound(new { message = $"Stock with id {id} not found." });
-            }
-
-            // Update stock properties
-            stock.Symbol = stockDTO.Symbol;
-            stock.CompanyName = stockDTO.CompanyName;
-            stock.Purchase = stockDTO.Purchase;
-            stock.LastDiv = stockDTO.LastDiv;
-            stock.Industry = stockDTO.Industry;
-            stock.MarketCap = stockDTO.MarketCap;
-
-            _context.Stocks.Update(stock);
-            _context.SaveChanges();
-
-            return Ok(new { message = "Stock updated successfully.", stock = stockDTO });
+            return NotFound();
         }
-
+        
+        
         // DELETE: api/stocks/5
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var stock = _context.Stocks.FirstOrDefault(s => s.Id == id);
-            if (stock == null)
+            var stockModel = await _stockRepository.DeleteAsync(id);
+
+            if (stockModel == null)
             {
-                return NotFound(new { message = $"Stock with id {id} not found." });
+                return NotFound();
             }
-
-            _context.Stocks.Remove(stock);
-            _context.SaveChanges();
-
             return Ok(new { message = "Stock deleted successfully." });
         }
+
     }
 }
