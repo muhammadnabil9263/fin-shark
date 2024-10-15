@@ -1,5 +1,5 @@
 ﻿using api.Data;
-using api.DTOs;
+using api.DTOs.Stock;
 using api.Interfaces;
 using api.Mappers;
 using api.Models;

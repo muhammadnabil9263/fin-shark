@@ -1,4 +1,4 @@
-﻿using api.DTOs;
+﻿using api.DTOs.Stock;
 using api.Models;
 
 namespace api.Interfaces;

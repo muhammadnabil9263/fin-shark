@@ -1,4 +1,4 @@
-﻿using api.DTOs;
+﻿using api.DTOs.Stock;
 using api.Models;
 
 namespace api.Mappers;
@@ -18,7 +18,6 @@ public class StockMapper
             MarketCap = stock.MarketCap
         };
     }
-
     public static Stock ToStockFromCreateDTO(CreateStockDTO stockDto)
     {
         return new Stock
