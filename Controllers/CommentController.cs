@@ -1,5 +1,9 @@
-﻿using api.Interfaces;
+﻿using api.Data;
+using api.DTOs.Comment;
+using api.DTOs.Stock;
+using api.Interfaces;
 using api.Mappers;
+using api.Models;
 using api.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,10 +15,15 @@ namespace api.Controllers;
 [ApiController]
 public class CommentController : ControllerBase
 {
-   private ICommentRepository _commentRepository;
-    public CommentController(ICommentRepository commentRepository)
+    private ICommentRepository _commentRepository;
+    private IStockRepository _stockRepository;
+    private ApplicationDbContext _context;
+    public CommentController(ICommentRepository commentRepository,
+        IStockRepository stockRepository, ApplicationDbContext context)
     {
         _commentRepository = commentRepository;
+        _stockRepository = stockRepository;
+        _context = context;
     }
 
 
@@ -28,18 +37,39 @@ public class CommentController : ControllerBase
         return Ok(commentDTOs);
     }
 
-    // GET api/comments/5
-    [HttpGet("{id}")]
-    public string Get(int id)
+    // POST api/comments
+    //[HttpPost("stockId")]
+    //public async Task<IActionResult> Post( CreateCommentDTO commentDto, int stockId)
+    //{
+
+    //    if (!await _stockRepository.StockExists(stockId)) {
+    //        return BadRequest("Stock not exist");
+    //    }
+    //    var comment = CommentMapper.ToCommentModelFromCreateDTO(commentDto , stockId);
+
+    //    await _commentRepository.CreateAsync(comment);
+
+    //    return Ok(await _commentRepository.CreateAsync(comment));
+
+    //}
+
+    [HttpPost]
+    public async Task<IActionResult> Post(CreateCommentDTO commentDTO)
     {
-        return "value";
+
+        if (!await _stockRepository.StockExists(commentDTO.StockId))
+        {
+            return BadRequest("stock not found ");
+        }
+
+        var comment = CommentMapper.ToCommentModelFromCreateDTO(commentDTO);
+
+        await _commentRepository.CreateAsync(comment);
+
+        return Ok(new { message = "Stock created successfully.", co = comment });
     }
 
-    // POST api/comments
-    [HttpPost]
-    public void Post([FromBody] string value)
-    {
-    }
+
 
     // PUT  api/comments/5
     [HttpPut("{id}")]

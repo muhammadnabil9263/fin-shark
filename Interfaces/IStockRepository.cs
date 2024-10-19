@@ -12,9 +12,12 @@ public interface IStockRepository
 
     Task<Stock> GetByIdAsync(int id);
 
-    Task<bool> UpdateAsync(int id , UpdateStockDTO stockDto);
+    Task<bool> UpdateAsync(int id, UpdateStockDTO stockDto);
 
     Task<Stock> DeleteAsync(int id);
+
+
+    Task<bool> StockExists(int id);
 
 }
 

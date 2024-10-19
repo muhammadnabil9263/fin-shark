@@ -32,7 +32,7 @@ namespace api.Repositories
         public async Task CreateAsync(CreateStockDTO stockDto)
         {
 
-            var stock = StockMapper.ToStockFromCreateDTO(stockDto);
+            var stock = StockMapper.ToStockModelFromCreateDTO(stockDto);
             await _context.Stocks.AddAsync(stock);
             await _context.SaveChangesAsync();
         }
@@ -73,6 +73,12 @@ namespace api.Repositories
             return stock; 
         }
 
+        public Task<bool> StockExists(int id) {
+
+            return _context.Stocks.AnyAsync(s => s.Id == id);
+        }
+
+        
     }
 
 }
