@@ -30,5 +30,16 @@ public class StockMapper
             MarketCap = stockDto.MarketCap
         };
     }
+    public static Stock ToStockModelFromUpdatedDTO(UpdateStockDTO stockDto)
+    {
+        return new Stock
+        {
+            Symbol = stockDto.Symbol,
+            Purchase = stockDto.Purchase,
+            LastDiv = stockDto.LastDiv,
+            Industry = stockDto.Industry,
+            MarketCap = stockDto.MarketCap
+        };
+    }
 
 }

@@ -29,51 +29,61 @@ namespace api.Repositories
             return await _context.Stocks.FirstOrDefaultAsync(s => s.Id == id);
         }
 
-        public async Task CreateAsync(CreateStockDTO stockDto)
+        public async Task< Stock>CreateAsync(Stock  stock)
         {
 
-            var stock = StockMapper.ToStockModelFromCreateDTO(stockDto);
             await _context.Stocks.AddAsync(stock);
             await _context.SaveChangesAsync();
+            return stock;
         }
 
-        public async Task<bool> UpdateAsync(int Id, UpdateStockDTO stockDTO)
+
+        public async Task<bool> UpdateAsync(int id, Stock updatedStock)
         {
 
+            var existingStock = await _context.Stocks.FindAsync(id);
 
-            var stock = await _context.Stocks.FirstOrDefaultAsync(s => s.Id == Id);
-
-            if (stock == null)
+            if (existingStock == null)
             {
                 return false; // Stock not found
             }
 
-            stock.Symbol = stockDTO.Symbol;
-            stock.CompanyName = stockDTO.CompanyName;
-            stock.Purchase = stockDTO.Purchase;
-            stock.LastDiv = stockDTO.LastDiv;
-            stock.Industry = stockDTO.Industry;
-            stock.MarketCap = stockDTO.MarketCap;
+            existingStock.Symbol = updatedStock.Symbol;
+            existingStock.CompanyName = updatedStock.CompanyName;
+            existingStock.Purchase = updatedStock.Purchase;
+            existingStock.LastDiv = updatedStock.LastDiv;
+            existingStock.Industry = updatedStock.Industry;
+            existingStock.MarketCap = updatedStock.MarketCap;
 
-            _context.Stocks.Update(stock);
+            _context.Stocks.Update(existingStock);
             await _context.SaveChangesAsync();
 
             return true; // Update successful
         }
 
 
-        public async Task<Stock?> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            var stock = await _context.Stocks.FirstOrDefaultAsync(s => s.Id == id);
-            if (stock != null)
+            // Find the stock by ID
+            var stock = await _context.Stocks.FindAsync(id);
+
+            if (stock == null)
             {
-                _context.Stocks.Remove(stock);
-                await _context.SaveChangesAsync();
+                // Return false if the stock was not found
+                return false;
             }
-            return stock; 
+            // Remove the stock from the context
+            _context.Stocks.Remove(stock);
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            // Return true indicating the stock was successfully deleted
+            return true;
         }
 
-        public Task<bool> StockExists(int id) {
+        public Task<bool> StockExistsAsync(int id)
+        {
 
             return _context.Stocks.AnyAsync(s => s.Id == id);
         }

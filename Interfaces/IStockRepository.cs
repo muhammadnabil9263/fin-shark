@@ -2,22 +2,23 @@
 using api.Models;
 
 namespace api.Interfaces;
-
 public interface IStockRepository
 {
-
+    // Get all stock records
     Task<List<Stock>> GetAllAsync();
 
-    Task CreateAsync(CreateStockDTO stock);
+    // Create a new stock entry
+    Task<Stock> CreateAsync(Stock stock);
 
-    Task<Stock> GetByIdAsync(int id);
+   // Get a specific stock by ID
+    Task<Stock?> GetByIdAsync(int id);
 
-    Task<bool> UpdateAsync(int id, UpdateStockDTO stockDto);
+    // Update an existing stock record
+    Task<bool> UpdateAsync(int id, Stock stock);
 
-    Task<Stock> DeleteAsync(int id);
+    // Delete a stock record
+    Task<bool> DeleteAsync(int id);
 
-
-    Task<bool> StockExists(int id);
-
+    // Check if stock exists by ID
+    Task<bool> StockExistsAsync(int id);
 }
-

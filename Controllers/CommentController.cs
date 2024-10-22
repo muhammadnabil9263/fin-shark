@@ -18,6 +18,7 @@ public class CommentController : ControllerBase
     private ICommentRepository _commentRepository;
     private IStockRepository _stockRepository;
     private ApplicationDbContext _context;
+
     public CommentController(ICommentRepository commentRepository,
         IStockRepository stockRepository, ApplicationDbContext context)
     {
@@ -37,34 +38,20 @@ public class CommentController : ControllerBase
         return Ok(commentDTOs);
     }
 
-    // POST api/comments
-    //[HttpPost("stockId")]
-    //public async Task<IActionResult> Post( CreateCommentDTO commentDto, int stockId)
-    //{
 
-    //    if (!await _stockRepository.StockExists(stockId)) {
-    //        return BadRequest("Stock not exist");
-    //    }
-    //    var comment = CommentMapper.ToCommentModelFromCreateDTO(commentDto , stockId);
-
-    //    await _commentRepository.CreateAsync(comment);
-
-    //    return Ok(await _commentRepository.CreateAsync(comment));
-
-    //}
 
     [HttpPost]
     public async Task<IActionResult> Post(CreateCommentDTO commentDTO)
     {
 
-        if (!await _stockRepository.StockExists(commentDTO.StockId))
+        if (!await _stockRepository.StockExistsAsync(commentDTO.StockId))
         {
             return BadRequest("stock not found ");
         }
 
         var comment = CommentMapper.ToCommentModelFromCreateDTO(commentDTO);
 
-        await _commentRepository.CreateAsync(comment);
+        comment = await _commentRepository.CreateAsync(comment);
 
         return Ok(new { message = "Stock created successfully.", co = comment });
     }
@@ -73,8 +60,26 @@ public class CommentController : ControllerBase
 
     // PUT  api/comments/5
     [HttpPut("{id}")]
-    public void Put(int id, [FromBody] string value)
+    public async Task<IActionResult> Put(int id, [FromBody] UpdateCommentDTO commentDTO)
     {
+        if (commentDTO == null)
+        {
+            return BadRequest(new { message = "Invalid comment data." });
+        }
+
+        // Map the DTO to the comment model
+        var comment = CommentMapper.ToCommentModelFromUpdateDTO(commentDTO);
+
+        // Call the repository to update the stock
+        var result = await _commentRepository.UpdateAsync(id, comment);
+
+        if (result)
+        {
+            return Ok(new { message = "Comment updated successfully.", stock = commentDTO });
+        }
+
+        // Stock not found or update failed
+        return NotFound(new { message = $"Comment with ID {id} not found." });
     }
 
     // DELETE api/comments/5

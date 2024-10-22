@@ -2,6 +2,7 @@
 using api.DTOs.Stock;
 using api.Interfaces;
 using api.Mappers;
+using api.Models;
 using api.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -58,40 +59,60 @@ public class StocksController : ControllerBase
             return BadRequest(new { message = "Invalid stock data." });
         }
 
-        await _stockRepository.CreateAsync(stockDTO);
+        // Optional: Check if the model state is valid
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState); // This will return model validation errors
+        }
 
-        return Ok(new { message = "Stock created successfully.", stock = stockDTO });
+        Stock stock = StockMapper.ToStockModelFromCreateDTO(stockDTO);
+
+        await _stockRepository.CreateAsync(stock);
+
+        // Return 201 Created status with the created stock object and location
+        return CreatedAtAction(nameof(GetById), new { id = stock.Id }, new { message = "Stock created successfully.", stock });
     }
-    
-    
+
+
+
     //PUT: api/stocks/5
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(int id, [FromBody] UpdateStockDTO stockDTO)
     {
-     
-    
-       var result = await _stockRepository.UpdateAsync(id,stockDTO);
-        
+        if (stockDTO == null)
+        {
+            return BadRequest(new { message = "Invalid stock data." });
+        }
+
+        // Map the DTO to the stock model
+        var stock = StockMapper.ToStockModelFromUpdatedDTO(stockDTO);
+
+        // Call the repository to update the stock
+        var result = await _stockRepository.UpdateAsync(id, stock);
+
         if (result)
         {
             return Ok(new { message = "Stock updated successfully.", stock = stockDTO });
         }
 
-        return NotFound();
+        // Stock not found or update failed
+        return NotFound(new { message = $"Stock with ID {id} not found." });
     }
-    
-    
+
+
+
     // DELETE: api/stocks/5
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var stockModel = await _stockRepository.DeleteAsync(id);
+        var result = await _stockRepository.DeleteAsync(id);
 
-        if (stockModel == null)
+        if (result)
         {
-            return NotFound();
+            return Ok(new { message = "Stock deleted successfully." });
         }
-        return Ok(new { message = "Stock deleted successfully." });
+        return NotFound();
+
     }
 
 }

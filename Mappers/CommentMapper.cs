@@ -19,14 +19,21 @@ public class CommentMapper
         };
     }
 
-
-    public static Models.Comment ToCommentModelFromCreateDTO(CreateCommentDTO  commentDTO )
+    public static Comment ToCommentModelFromCreateDTO(CreateCommentDTO commentDTO)
     {
-        return new Models.Comment
+        return new Comment
         {
-        Content = commentDTO.Content,
-        Title = commentDTO.Title,
-        StockId= commentDTO.StockId,
+            Content = commentDTO.Content,
+            Title = commentDTO.Title,
+            StockId = commentDTO.StockId,
+        };
+    }
+    public static Comment ToCommentModelFromUpdateDTO(UpdateCommentDTO commentDTO)
+    {
+        return new Comment
+        {
+            Content = commentDTO.Content,
+            Title = commentDTO.Title,
         };
     }
 }
