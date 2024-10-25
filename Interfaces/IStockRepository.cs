@@ -1,11 +1,12 @@
 ﻿using api.DTOs.Stock;
+using api.Helpers;
 using api.Models;
 
 namespace api.Interfaces;
 public interface IStockRepository
 {
     // Get all stock records
-    Task<List<Stock>> GetAllAsync();
+    Task<List<Stock>> GetAllAsync( QueryObject quary);
 
     // Create a new stock entry
     Task<Stock> CreateAsync(Stock stock);

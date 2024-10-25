@@ -1,6 +1,4 @@
 ﻿using api.Data;
-using api.DTOs.Comment;
-using api.DTOs.Stock;
 using api.Interfaces;
 using api.Mappers;
 using api.Models;
@@ -33,10 +31,11 @@ public class CommentRepository : ICommentRepository
     }
 
     // Get a specific comment  by ID
-    public Task<Stock?> GetByIdAsync(int id)
+    public async Task<Comment?> GetByIdAsync(int id)
     {
-        throw new NotImplementedException();
+        return await _context.Comments.FindAsync(id);
     }
+
 
     public async Task<bool> UpdateAsync(int id, Comment updatedComment)
     {
@@ -49,7 +48,7 @@ public class CommentRepository : ICommentRepository
 
         existingComment.Title = updatedComment.Title;
         existingComment.Content = updatedComment.Content;
-      
+
 
         _context.Comments.Update(existingComment);
         await _context.SaveChangesAsync();
@@ -57,9 +56,24 @@ public class CommentRepository : ICommentRepository
         return true; // Update successful
     }
 
-    public Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        throw new NotImplementedException();
+        // Find the comment by ID
+        var comment = await _context.Comments.FindAsync(id);
+
+        if (comment == null)
+        {
+            // Return false if the comment was not found
+            return false;
+        }
+        // Remove the comment from the context
+        _context.Comments.Remove(comment);
+
+        // Save changes to the database
+        await _context.SaveChangesAsync();
+
+        // Return true indicating the comment was successfully deleted
+        return true;
     }
 
 

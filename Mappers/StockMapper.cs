@@ -15,7 +15,8 @@ public class StockMapper
             Purchase = stock.Purchase,
             LastDiv = stock.LastDiv,
             Industry = stock.Industry,
-            MarketCap = stock.MarketCap
+            MarketCap = stock.MarketCap,
+            Comments = stock.Comments.Select(comment => CommentMapper.ToDTO(comment)).ToList()
         };
     }
     public static Stock ToStockModelFromCreateDTO(CreateStockDTO stockDto)

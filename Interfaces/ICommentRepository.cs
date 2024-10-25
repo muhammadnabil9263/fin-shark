@@ -12,7 +12,7 @@ public interface ICommentRepository
     Task<Comment> CreateAsync(Comment comment);
 
     // Get a specific stock by ID
-    Task<Stock?> GetByIdAsync(int id);
+    Task<Comment?> GetByIdAsync(int id);
 
     // Update an existing stock record
     Task<bool> UpdateAsync(int id, Comment comment);

@@ -39,6 +39,19 @@ public class CommentController : ControllerBase
     }
 
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var comment = await _commentRepository.GetByIdAsync(id);
+
+        if (comment == null)
+        {
+            return NotFound(new { message = $"Comment with id {id} not found." });
+        }
+
+        var stockDTO = CommentMapper.ToDTO(comment);
+        return Ok(stockDTO);
+    }
 
     [HttpPost]
     public async Task<IActionResult> Post(CreateCommentDTO commentDTO)
@@ -55,8 +68,6 @@ public class CommentController : ControllerBase
 
         return Ok(new { message = "Stock created successfully.", co = comment });
     }
-
-
 
     // PUT  api/comments/5
     [HttpPut("{id}")]
@@ -84,7 +95,15 @@ public class CommentController : ControllerBase
 
     // DELETE api/comments/5
     [HttpDelete("{id}")]
-    public void Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
+        var result = await _commentRepository.DeleteAsync(id);
+
+        if (result)
+        {
+            return Ok(new { message = "Comment deleted successfully." });
+        }
+        return NotFound();
+
     }
 }

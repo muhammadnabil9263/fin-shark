@@ -1,9 +1,11 @@
 ﻿using api.Data;
 using api.DTOs.Stock;
+using api.Helpers;
 using api.Interfaces;
 using api.Mappers;
 using api.Models;
 using api.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -26,9 +28,9 @@ public class StocksController : ControllerBase
 
     // GET: api/stocks
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] QueryObject quary)
     {
-        var stocks = await _stockRepository.GetAllAsync();
+        var stocks = await _stockRepository.GetAllAsync(quary);
         var stockDTOs = stocks.Select(stock => StockMapper.ToDTO(stock)).ToList();
         return Ok(stockDTOs);
     }
@@ -36,6 +38,7 @@ public class StocksController : ControllerBase
 
     // GET: api/stocks/5
     [HttpGet("{id}")]
+    [Authorize]
     public async Task<IActionResult> GetById(int id)
     {
         var stock = await _stockRepository.GetByIdAsync(id);
@@ -76,6 +79,7 @@ public class StocksController : ControllerBase
 
 
     //PUT: api/stocks/5
+
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(int id, [FromBody] UpdateStockDTO stockDTO)
     {
